@@ -3,7 +3,7 @@
 from __future__ import division, print_function
 
 import os, glob, re
-import dicom
+import pydicom
 import numpy as np
 from PIL import Image, ImageDraw
 
@@ -66,7 +66,7 @@ class PatientData(object):
         self.all_images = []
         self.all_dicoms = []
         for dicom_file in dicom_files:
-            plan = dicom.read_file(dicom_file)
+            plan = pydicom.read_file(dicom_file)
             image = maybe_rotate(plan.pixel_array)
             self.all_images.append(image)
             self.all_dicoms.append(plan)
@@ -127,4 +127,3 @@ class PatientData(object):
             grayscale = np.asarray(image * (255 / image.max()), dtype='uint8')
             video.write(cv2.cvtColor(grayscale, cv2.COLOR_GRAY2BGR))
         video.release()
-

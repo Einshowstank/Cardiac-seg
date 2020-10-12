@@ -1,6 +1,7 @@
 # Custom ignore files
 results/
-
+checkpoint/
+wandb/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

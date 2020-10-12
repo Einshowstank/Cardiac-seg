@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 
-from rvseg import opts, patient, dataset, models
+from rvseg_f import opts, patient, dataset, models
 
 
 def load_patient_images(path, normalize=True):
@@ -26,7 +26,7 @@ def load_patient_images(path, normalize=True):
 
 def get_contours(mask):
     mask_image = np.where(mask > 0.5, 255, 0).astype('uint8')
-    im2, coords, hierarchy = cv2.findContours(mask_image, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    coords, hierarchy = cv2.findContours(mask_image, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
     if not coords:
         print("No contour detected.")
@@ -58,7 +58,7 @@ def main():
     # Sort of a hack:
     # args.checkpoint = turns on saving of images
     args = opts.parse_arguments()
-    args.checkpoint = False     # override for now
+    #args.checkpoint = False     # override for now
 
     glob_search = os.path.join(args.datadir, "patient*")
     patient_dirs = sorted(glob.glob(glob_search))

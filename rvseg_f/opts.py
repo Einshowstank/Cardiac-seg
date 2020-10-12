@@ -7,9 +7,9 @@ import logging
 
 definitions = [
     # model               type   default help
-    ('model',            (str,   'unet', "Model: unet, dilated-unet, dilated-densenet")),
+    ('model',            (str,   'dilated-unet', "Model: unet, dilated-unet, dilated-densenet")),
     ('features',         (int,   64,     "Number of features maps after first convolutional layer.")),
-    ('depth',            (int,   4,      "Number of downsampled convolutional blocks.")),
+    ('depth',            (int,   3,      "Number of downsampled convolutional blocks.")),
     ('temperature',      (float, 1.0,    "Temperature of final softmax layer in model.")),
     ('padding',          (str,   'same', "Padding in convolutional layers. Either `same' or `valid'.")),
     ('dropout',          (float, 0.0,    "Rate for dropout of activation units.")),
@@ -23,7 +23,7 @@ definitions = [
                           'help': "When using dice or jaccard loss, how much to weight each output class."}),
 
     # training
-    ('epochs',           (int,   20,     "Number of epochs to train.")),
+    ('epochs',           (int,   500,     "Number of epochs to train.")),
     ('batch-size',       (int,   32,     "Mini-batch size for training.")),
     ('validation-split', (float, 0.2,    "Percentage of training data to hold out for validation.")),
     ('optimizer',        (str,   'adam', "Optimizer: sgd, rmsprop, adagrad, adadelta, adam, adamax, or nadam.")),
@@ -32,20 +32,21 @@ definitions = [
     ('decay',            (float, None,   "Learning rate decay (not applicable for nadam).")),
     ('shuffle_train_val', {'default': False, 'action': 'store_true',
                            'help': "Shuffle images before splitting into train vs. val."}),
-    ('shuffle',          {'default': False, 'action': 'store_true',
+    ('shuffle',          {'default': True, 'action': 'store_true',
                           'help': "Shuffle images before each training epoch."}),
     ('seed',             (int,   None,   "Seed for numpy RandomState")),
 
     # files
-    ('datadir',          (str,   '.',    "Directory containing patientXX/ directories.")),
-    ('outdir',           (str,   '.',    "Directory to write output data.")),
-    ('outfile',          (str,   'weights-final.hdf5', "File to write final model weights.")),
+    ('datadir',          (str,   '/home/leij/vscode_projects/data/RVSC_data/TrainingSet',    "Directory containing patientXX/ directories.")),
+    ('datadir_test',     (str,   '/home/leij/vscode_projects/data/RVSC_data/Test1Set/Test1Set',    "Directory containing patientXX/ directories.")),
+    ('outdir',           (str,   './checkpoint/dilated-unet',    "Directory to write output data.")),
+    ('outfile',          (str,   'weights-final.h5', "File to write final model weights.")),
     ('load-weights',     (str,   '',     "Load model weights from specified file to initialize training.")),
-    ('checkpoint',       {'default': False, 'action': 'store_true',
+    ('checkpoint',       {'default': True, 'action': 'store_true',
                           'help': "Write model weights after each epoch if validation accuracy improves."}),
 
     # augmentation
-    ('augment-training', {'default': False, 'action': 'store_true',
+    ('augment-training', {'default': True, 'action': 'store_true',
                           'help': "Whether to apply image augmentation to training set."}),
     ('augment-validation', {'default': False, 'action': 'store_true',
                             'help': "Whether to apply image augmentation to validation set."}),
@@ -57,7 +58,7 @@ definitions = [
     ('fill-mode',          (str,   'nearest', "Points outside boundaries are filled according to mode: constant, nearest, reflect, or wrap")),
     ('alpha',              (float, 500,    "Random elastic distortion: magnitude of distortion")),
     ('sigma',              (float, 20,     "Random elastic distortion: length scale")),
-    ('normalize', {'default': False, 'action': 'store_true',
+    ('normalize', {'default': True, 'action': 'store_true',
                    'help': "Subtract mean and divide by std dev from each image."}),
 ]
 
@@ -125,7 +126,7 @@ def parse_arguments():
                 if key not in args:
                     raise Exception("Unknown option {} in config file.".format(key))
                 update_from_configfile(args, parser.get_default(key),
-                                       config, section, key)
+                                        config, section, key)
 
     for k,v in vars(args).items():
         logging.info("{:20s} = {}".format(k, v))

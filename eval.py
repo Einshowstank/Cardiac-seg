@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 from __future__ import division, print_function
-
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from rvseg import opts, patient, dataset, models
+from rvseg_f import opts, patient, dataset, models
 
 
 def save_image(figname, image, mask_true, mask_pred, alpha=0.3):
@@ -60,6 +60,7 @@ def main():
     # args.outfile = file basename to store train / val dice scores
     # args.checkpoint = turns on saving of images
     args = opts.parse_arguments()
+    args.checkpoint = False
 
     print("Loading dataset...")
     augmentation_args = {
@@ -84,6 +85,10 @@ def main():
             augment_training=args.augment_training,
             augment_validation=args.augment_validation,
             augmentation_args=augmentation_args)
+
+    test_generator, test_steps_per_epoch = dataset.create_testset_generators(
+        args.datadir_test, mask=args.classes,
+        seed=args.seed, normalize_images=args.normalize)
 
     # get image dimensions from first batch
     images, masks = next(train_generator)
@@ -117,21 +122,31 @@ def main():
         m, val_generator, val_steps_per_epoch,
         return_images=args.checkpoint)
 
-    if args.outfile:
+    print()
+    print("Test Set:")
+    test_dice, test_jaccard, test_images = compute_statistics(
+        m, test_generator, test_steps_per_epoch,
+        return_images=args.checkpoint)
+
+    if args.outdir:
         train_data = np.asarray([train_dice, train_jaccard]).T
         val_data = np.asarray([val_dice, val_jaccard]).T
-        np.savetxt(args.outfile + ".train", train_data)
-        np.savetxt(args.outfile + ".val", val_data)
+        test_data = np.asarray([test_dice, test_jaccard]).T
+        np.savetxt(args.outdir + "/train.txt", train_data)
+        np.savetxt(args.outdir + "/val.txt", val_data)
+        np.savetxt(args.outdir + "/test.txt", test_data)
 
     if args.checkpoint:
         print("Saving images...")
         for i,dice in enumerate(train_dice):
             image, mask_true, mask_pred = train_images[i]
             figname = "train-{:03d}-{:.3f}.png".format(i, dice)
+            figname = os.path.join(args.outdir, figname)
             save_image(figname, image, mask_true, np.round(mask_pred))
         for i,dice in enumerate(val_dice):
             image, mask_true, mask_pred = val_images[i]
             figname = "val-{:03d}-{:.3f}.png".format(i, dice)
+            figname = os.path.join(args.outdir, figname)
             save_image(figname, image, mask_true, np.round(mask_pred))
 
 if __name__ == '__main__':

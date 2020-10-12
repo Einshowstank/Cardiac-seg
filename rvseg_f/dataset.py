@@ -90,7 +90,7 @@ def random_elastic_deformation(image, alpha, sigma, mode='nearest',
 
     return values.reshape((height, width, channels))
 
-class Iterator(object):
+class Iterator:
     def __init__(self, images, masks, batch_size,
                  shuffle=True,
                  rotation_range=180,
@@ -122,10 +122,10 @@ class Iterator(object):
         if shuffle:
             np.random.shuffle(self.index)
 
-    def __next__(self):
-        return self.next()
+    def __iter__(self):
+        return self
 
-    def next(self):
+    def __next__(self):
         # compute how many images to output in this batch
         start = self.i
         end = min(start + self.batch_size, len(self.images))
@@ -201,7 +201,7 @@ def create_generators(data_dir, batch_size, validation_split=0.0, mask='both',
     else:
         idg = ImageDataGenerator()
         train_generator = idg.flow(images[:split_index], masks[:split_index],
-                                   batch_size=batch_size, shuffle=shuffle)
+                                    batch_size=batch_size, shuffle=shuffle)
 
     train_steps_per_epoch = ceil(split_index / batch_size)
 
@@ -213,7 +213,7 @@ def create_generators(data_dir, batch_size, validation_split=0.0, mask='both',
         else:
             idg = ImageDataGenerator()
             val_generator = idg.flow(images[split_index:], masks[split_index:],
-                                     batch_size=batch_size, shuffle=shuffle)
+                                    batch_size=batch_size, shuffle=shuffle)
     else:
         val_generator = None
 
@@ -221,3 +221,25 @@ def create_generators(data_dir, batch_size, validation_split=0.0, mask='both',
 
     return (train_generator, train_steps_per_epoch,
             val_generator, val_steps_per_epoch)
+
+
+def create_testset_generators(data_dir,  mask='both', seed=None, normalize_images=True):
+    images, masks = load_images(data_dir, mask)
+
+    # before: type(masks) = uint8 and type(images) = uint16
+    # convert images to double-precision
+    images = images.astype('float64')
+
+    # maybe normalize image
+    if normalize_images:
+        normalize(images, axis=(1,2))
+
+    if seed is not None:
+        np.random.seed(seed)
+
+    idg = ImageDataGenerator()
+    test_generator = idg.flow(images, masks, batch_size=1, shuffle=False)
+
+    test_steps_per_epoch = len(images)
+
+    return (test_generator, test_steps_per_epoch)

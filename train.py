@@ -11,7 +11,7 @@ from keras.optimizers import SGD, RMSprop, Adagrad, Adadelta, Adam, Adamax, Nada
 from keras.callbacks import ModelCheckpoint
 from keras import backend as K
 
-from rvseg import dataset, models, loss, opts
+from rvseg_f import dataset, models, loss, opts
 
 
 def select_optimizer(optimizer_name, optimizer_args):
@@ -128,29 +128,29 @@ def train():
     if args.checkpoint:
         if args.loss == 'pixel':
             filepath = os.path.join(
-                args.outdir, "weights-{epoch:02d}-{val_acc:.4f}.hdf5")
-            monitor = 'val_acc'
+                args.outdir, "epoch:{epoch:02d}-dice:{dice:.4f}-val-dice:{val_dice:.4f}.h5")
+            monitor='val_dice'
             mode = 'max'
         elif args.loss == 'dice':
             filepath = os.path.join(
-                args.outdir, "weights-{epoch:02d}-{val_dice:.4f}.hdf5")
+                args.outdir, "epoch:{epoch:02d}-dice:{dice:.4f}-val-dice:{val_dice:.4f}.h5")
             monitor='val_dice'
             mode = 'max'
         elif args.loss == 'jaccard':
             filepath = os.path.join(
-                args.outdir, "weights-{epoch:02d}-{val_jaccard:.4f}.hdf5")
+                args.outdir, "weights-{epoch:02d}-{val_jaccard:.4f}.h5")
             monitor='val_jaccard'
             mode = 'max'
         checkpoint = ModelCheckpoint(
             filepath, monitor=monitor, verbose=1,
-            save_best_only=True, mode=mode)
+            save_best_only=True,save_weights_only=True, mode=mode)
         callbacks = [checkpoint]
     else:
         callbacks = []
 
     # train
     logging.info("Begin training.")
-    m.fit_generator(train_generator,
+    m.fit(train_generator,
                     epochs=args.epochs,
                     steps_per_epoch=train_steps_per_epoch,
                     validation_data=val_generator,
@@ -158,7 +158,15 @@ def train():
                     callbacks=callbacks,
                     verbose=2)
 
-    m.save(os.path.join(args.outdir, args.outfile))
+    #m.save(os.path.join(args.outdir, args.outfile))
+    #m.save(args.outfile)
 
 if __name__ == '__main__':
     train()
+
+# %%
+# import matplotlib.pyplot as plt
+# from rvseg_f import patient, models
+
+# p = patient.PatientData("/home/leij/vscode_projects/data/RVSC_data/TrainingSet/patient01")
+# p.images

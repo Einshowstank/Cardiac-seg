@@ -1,0 +1,21 @@
+dilated-unet: depth =3 ; batchnorm = false ; bathsize = 32
+endocardium:
+Dice:    0.852 (0.152)
+Jaccard: 0.766 (0.179)
+
+Validation Set:
+Dice:    0.850 (0.104)
+Jaccard: 0.751 (0.141)
+
+
+epicardium:
+Dice:    0.885 (0.105)
+Jaccard: 0.806 (0.137)
+
+Validation Set:
+Dice:    0.890 (0.080)
+Jaccard: 0.810 (0.116)
+
+Test1 Set:
+Dice:    0.851 (0.158)
+Jaccard: 0.765 (0.185)
