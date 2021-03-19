@@ -3,17 +3,14 @@
 ![build status](https://travis-ci.org/chuckyee/cardiac-segmentation.svg?branch=master)
 
 This repository contains code and models to identify the right ventricle in
-cardiac MRI images. The
-[project](http://ai-on.org/projects/cardiac-mri-segmentation.html) is one of
-the open calls for research from Francois Chollet's [AI Open
-Network](http://ai-on.org/).
+cardiac MRI images. The model we use is dilated u-net.The model is implemented on Keras.
 
 For the problem description, models and results, please see the blog post
 [here](https://chuckyee.github.io/cardiac-segmentation/).
 
 ## Installation
 
-The main code is written as a Python package named `rvseg'. After cloning this
+The main code is written as a Python package named `rvseg_f'. After cloning this
 repository to your machine, install with:
 
 ```bash
